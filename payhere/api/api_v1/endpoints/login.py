@@ -7,7 +7,7 @@ from payhere.core.security import create_access_token
 from payhere.db.session import Base, engine, get_db
 from payhere.schemas.user import UserCreate
 from payhere.models.user import User
-from payhere.core.security import get_password_hash
+from payhere.core.security import get_password_hash, verify_password
 
 Base.metadata.create_all(bind=engine)
 
@@ -27,3 +27,18 @@ def post(user: UserCreate, db: Session = Depends(get_db)):
     db.commit()
     db.refresh(db_obj)
     del db_obj.password
+
+
+@router.post("/login")
+async def login_for_access_token(user: UserCreate, db: Session = Depends(get_db)):
+    db_user = db.query(User).filter(User.email == user.email).first()
+    if not db_user or not verify_password(user.password, db_user.password):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="없는 이메일이거나 비밀번호 다름",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token = create_access_token(subject=db_user.email, expires_delta=access_token_expires)
+    return {"access_token": access_token, "token_type": "bearer"}
+
