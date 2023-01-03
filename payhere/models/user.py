@@ -1,6 +1,6 @@
 from sqlalchemy import Boolean, Column, String
 from sqlalchemy.dialects.mysql import INTEGER
-from app.db.session import Base
+from payhere.db.session import Base
 
 
 class User(Base):

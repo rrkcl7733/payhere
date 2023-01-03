@@ -11,10 +11,6 @@ class UserCreate(UserBase):
     password: str
 
 
-class UserUpdate(UserBase):
-    password: Optional[str] = None
-
-
 class UserInDBBase(UserBase):
     id: int
     password: Optional[str] = None

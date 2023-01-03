@@ -14,7 +14,7 @@ class Settings(BaseSettings):
 
     HOST: str = os.getenv('HOST')
     PORT: str = os.getenv('PORT')
-    USERNAME: str = os.getenv('USERNAME')
+    USERNAME: str = os.getenv('NAME')
     PASSWORD: str = os.getenv('PASSWORD')
     DATABASE: str = os.getenv('DATABASE')
     SQLALCHEMY_DATABASE_URL = f'mysql://{USERNAME}:{PASSWORD}@{HOST}:{PORT}/{DATABASE}'
