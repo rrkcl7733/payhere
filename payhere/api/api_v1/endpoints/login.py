@@ -1,17 +1,14 @@
 from datetime import timedelta
-
-import pydantic
 from sqlalchemy.orm import Session
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Response
 from fastapi.security import OAuth2PasswordRequestForm
 
 from payhere.core.config import settings
 from payhere.core.security import create_access_token
 from payhere.db.session import Base, engine, get_db
-from payhere.schemas.user import UserBase
+from payhere.schemas.user import UserCreate
 from payhere.models.user import User
 from payhere.core.security import get_password_hash, verify_password
-from payhere.api.depends import get_current_user
 
 Base.metadata.create_all(bind=engine)
 
@@ -19,7 +16,7 @@ router = APIRouter()
 
 
 @router.post("/register")
-def post(user: UserBase, db: Session = Depends(get_db)):
+def post(user: UserCreate, db: Session = Depends(get_db)):
     db_user = db.query(User).filter(User.email == user.username).first()
     if db_user:
         raise HTTPException(status=400, detail="등록된 이메일입니다")
@@ -47,6 +44,7 @@ async def login_for_access_token(user: OAuth2PasswordRequestForm = Depends(), db
     return {"access_token": access_token, "token_type": "bearer"}
 
 
-@router.get("/test")
-async def test(current_user: User = Depends(get_current_user)):
-    return "good boy"
+@router.get('/logout')
+async def logout(response: Response):
+    response.delete_cookie("access_token")
+    return response
