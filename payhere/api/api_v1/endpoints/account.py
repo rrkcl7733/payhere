@@ -1,11 +1,13 @@
 from fastapi import APIRouter, Depends, status, HTTPException
 from sqlalchemy.orm import Session
+import pyshorteners
 
 from payhere.db.session import Base, engine, get_db
 from payhere.api.depends import get_current_user
 from payhere.schemas.account import AccountCreate, AccountUpdate, AccountList
 from payhere.models.user import User
 from payhere.models.account import Account
+from payhere.core.config import settings
 
 Base.metadata.create_all(bind=engine)
 
@@ -66,3 +68,31 @@ def detail(account_id: int, user: User = Depends(get_current_user), db: Session 
             detail="없는 가계부이거나 권한 없음",
         )
     return db_detail
+
+
+@router.post("/copy/{account_id}", response_model=AccountList, response_model_include={"money", "memo"},
+             status_code=status.HTTP_200_OK)
+def copy(account_id: int, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    db_original = db.query(Account).filter(Account.id == account_id, user.id == Account.user_id).first()
+    db_copy = Account(
+        user_id=user.id,
+        money=db_original.money,
+        memo=db_original.memo
+    )
+    db.add(db_copy)
+    db.commit()
+    db.refresh(db_copy)
+    return db_copy
+
+
+@router.post("/short/{account_id}")
+def short(account_id: int, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    db_acc = db.query(Account).filter(Account.id == account_id, user.id == Account.user_id).first()
+    if not db_acc:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="없는 가계부이거나 권한 없음",
+        )
+    s = pyshorteners.Shortener()
+    url = s.clckru.short(f"https://{settings.HOST}:{settings.LOCAL}{settings.API_V1_STR}/accounts/detail/{account_id}")
+    return url

@@ -14,6 +14,7 @@ class Settings(BaseSettings):
 
     HOST: str = os.getenv('HOST')
     PORT: str = os.getenv('PORT')
+    LOCAL: str = os.getenv('LOCAL')
     USERNAME: str = os.getenv('NAME')
     PASSWORD: str = os.getenv('PASSWORD')
     DATABASE: str = os.getenv('DATABASE')
