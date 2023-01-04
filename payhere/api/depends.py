@@ -33,7 +33,7 @@ def get_current_user(db: Session = Depends(get_db), token: str = Depends(reusabl
             status_code=status.HTTP_403_FORBIDDEN,
             detail="토큰이 이상합니다",
         )
-    user = db.query(User).filter(User.email == token_data.sub)
+    user = db.query(User).filter(User.email == token_data.sub).first()
     if not user:
         raise HTTPException(
             status_code=404,
