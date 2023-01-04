@@ -2,7 +2,6 @@ from fastapi import FastAPI
 
 from payhere.api.api import api_router
 from payhere.core.config import settings
-from payhere.db.session import SessionLocal
 
 
 app = FastAPI()
