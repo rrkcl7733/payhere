@@ -54,3 +54,15 @@ def delete(account_id: int, user: User = Depends(get_current_user), db: Session 
 @router.get("/show", response_model=list[AccountList], status_code=status.HTTP_200_OK)
 def show(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     return db.query(Account).filter(Account.user_id == user.id).all()
+
+
+@router.get("/detail/{account_id}", response_model=AccountList, response_model_include={"money", "memo"},
+            status_code=status.HTTP_200_OK)
+def detail(account_id: int, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    db_detail = db.query(Account).filter(Account.id == account_id, user.id == Account.user_id).first()
+    if not db_detail:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="없는 가계부이거나 권한 없음",
+        )
+    return db_detail
