@@ -238,7 +238,7 @@ def test_accounts_detail_without_token_2():
 - 15번의 테스트 모두 passed 확인했습니다.
 - test code를 [공식문서](https://fastapi.tiangolo.com/tutorial/testing/) 보며 처음 코딩해보았습니다.(이런식으로 하는게 맞나요?)
 ---
-<div id="1"></div>
+<div id="3"></div>
 
 ### 미구현 및 회고
 <br>
@@ -264,6 +264,7 @@ form 형식으로 받아야 했고 testing 때도 client 내에 파라미터를 
 
 #### 시간이 더 있다면?
 
+- 혼자하기도 해서 branch 분리하지 않고 main에서만 작성했습니다.
 - 빠른 test 위해 api 폴더 내에 crud 쿼리를 따로 폴더로 분리하지 않았습니다 분리해서 더 깔끔하게 구성해보고 싶습니다
 - `/detail` 에 단축 url에 따른 쿼리 추가로 작성하느라 클린한 모습이 아닙니다
 - 가계부 상세 정보에 생성시간 추가해서 정렬기능
