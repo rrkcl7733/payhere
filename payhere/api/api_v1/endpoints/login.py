@@ -19,7 +19,7 @@ router = APIRouter()
 def post(user: UserCreate, db: Session = Depends(get_db)):
     db_user = db.query(User).filter(User.email == user.username).first()
     if db_user:
-        raise HTTPException(status=400, detail="등록된 이메일입니다")
+        raise HTTPException(status_code=400, detail="등록된 이메일입니다")
     db_obj = User(
         email=user.username,
         password=get_password_hash(user.password)
@@ -46,4 +46,5 @@ async def login_for_access_token(user: OAuth2PasswordRequestForm = Depends(), db
 
 @router.get('/logout')
 async def logout(req: Request):
+    # request 에서 header에 토큰 삭제방법 없음
     return req
