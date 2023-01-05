@@ -1,6 +1,6 @@
 from datetime import timedelta
 from sqlalchemy.orm import Session
-from fastapi import APIRouter, Depends, HTTPException, status, Response
+from fastapi import APIRouter, Depends, HTTPException, status, Request
 from fastapi.security import OAuth2PasswordRequestForm
 
 from payhere.core.config import settings
@@ -45,6 +45,5 @@ async def login_for_access_token(user: OAuth2PasswordRequestForm = Depends(), db
 
 
 @router.get('/logout')
-async def logout(response: Response):
-    response.delete_cookie("access_token")
-    return response
+async def logout(req: Request):
+    return req
