@@ -188,6 +188,7 @@ def detail(account_id: int, user: User = Depends(check_token), db: Session = Dep
 1. 하나의 uri 에서 처리하는 방법이라면 코드의 짜임새는 어떻게 해야하는지
 2. 가계부 세부 내역 조회 api를 2개 작성하는지(jwt 인증, 공유용 정보) 만약 이 경우 단축 url을 클릭하면 같은 uri로 이동하는데 이 문제는 어떻게 해결될 수 있는지
 <br>
+
 > DB 관련 테이블에 대한 DDL 파일을 소스 디렉토리 안에 넣어주세요. 
 
 DDL 폴더 내에 두 테이블의 DDL 정보를 `.sql`파일로 넣었습니다 (mysql workbench에서 export한 파일)
