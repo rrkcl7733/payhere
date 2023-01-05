@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, ForeignKey
+from sqlalchemy import Column, String, ForeignKey, DATETIME
 from sqlalchemy.dialects.mysql import INTEGER
 from sqlalchemy.orm import relationship
 
@@ -12,6 +12,7 @@ class Account(Base):
     user_id = Column(INTEGER, ForeignKey("user.id"))
     money = Column(INTEGER)
     memo = Column(String(255))
+    share = Column(DATETIME)
 
     users = relationship("User", back_populates="accounts")
 
