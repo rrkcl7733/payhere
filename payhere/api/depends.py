@@ -1,6 +1,6 @@
 import json
 from typing import Generator
-from fastapi import Depends, HTTPException, status
+from fastapi import Depends, HTTPException, status, Request
 from fastapi.security import OAuth2PasswordBearer
 from jose import jwt
 from pydantic import ValidationError
@@ -39,4 +39,17 @@ def get_current_user(db: Session = Depends(get_db), token: str = Depends(reusabl
             status_code=404,
             detail="유저가 없어!",
         )
+    return user
+
+
+def check_token(req: Request, db: Session = Depends(get_db)):
+    try:
+        token = req.headers["Authorization"].split()[1]
+        payload = jwt.decode(
+            token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM]
+        )
+        token_data = TokenPayload(**payload)
+    except:
+        return None
+    user = db.query(User).filter(User.email == token_data.sub).first()
     return user

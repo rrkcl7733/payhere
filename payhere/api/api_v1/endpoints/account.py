@@ -1,9 +1,10 @@
-from fastapi import APIRouter, Depends, status, HTTPException
+import datetime as dt
+from fastapi import APIRouter, Depends, status, HTTPException, Request
 from sqlalchemy.orm import Session
 import pyshorteners
 
 from payhere.db.session import Base, engine, get_db
-from payhere.api.depends import get_current_user
+from payhere.api.depends import get_current_user, check_token
 from payhere.schemas.account import AccountCreate, AccountUpdate, AccountList
 from payhere.models.user import User
 from payhere.models.account import Account
@@ -60,7 +61,15 @@ def show(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
 
 @router.get("/detail/{account_id}", response_model=AccountList, response_model_include={"money", "memo"},
             status_code=status.HTTP_200_OK)
-def detail(account_id: int, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+def detail(account_id: int, user: User = Depends(check_token), db: Session = Depends(get_db)):
+    db_share = db.query(Account).filter(Account.id == account_id).first()
+    if db_share and db_share.share and db_share.share >= dt.datetime.now():
+        return db_share
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="없는 가계부이거나 권한 없음",
+        )
     db_detail = db.query(Account).filter(Account.id == account_id, user.id == Account.user_id).first()
     if not db_detail:
         raise HTTPException(
@@ -93,6 +102,11 @@ def short(account_id: int, user: User = Depends(get_current_user), db: Session =
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="없는 가계부이거나 권한 없음",
         )
+    # 단축 URL 유효시간 설정
     s = pyshorteners.Shortener()
-    url = s.clckru.short(f"https://{settings.HOST}:{settings.LOCAL}{settings.API_V1_STR}/accounts/detail/{account_id}")
+    url = s.clckru.short(f"http://{settings.HOST}:{settings.LOCAL}{settings.API_V1_STR}/accounts/detail/{account_id}")
+    db_acc.share = dt.datetime.now() + dt.timedelta(minutes=5)
+    db.add(db_acc)
+    db.commit()
+    db.refresh(db_acc)
     return url
